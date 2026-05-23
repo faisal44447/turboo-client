@@ -3,38 +3,51 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 import ProductCard from "../ProductCard/ProductCard";
 
 const Products = () => {
+
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+
     const axiosSecure = useAxiosSecure();
 
+    // FETCH PRODUCTS
+    const fetchProducts = async () => {
+
+        try {
+
+            setLoading(true);
+
+            const res = await axiosSecure.get("/products");
+
+            const allProducts =
+                res?.data?.products || [];
+
+            setProducts(allProducts);
+
+        } catch (error) {
+
+            console.log(error);
+
+            setProducts([]);
+
+        } finally {
+
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                setLoading(true);
-
-                const res = await axiosSecure.get("/products");
-
-                console.log("API RESPONSE:", res.data);
-
-                const allProducts = res?.data?.products || [];
-
-                setProducts(allProducts); // ✅ NO FILTER (safe)
-
-            } catch (error) {
-                console.log(error);
-                setProducts([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchProducts();
-    }, [axiosSecure]);
+    }, []);
 
-    if (loading) return <p className="p-5">Loading...</p>;
+    if (loading)
+        return <p className="p-5">Loading...</p>;
 
     if (products.length === 0)
-        return <p className="p-5">No products found 😢</p>;
+        return (
+            <p className="p-5">
+                No products found 😢
+            </p>
+        );
 
     return (
         <div className="p-5">
@@ -49,6 +62,7 @@ const Products = () => {
                     <ProductCard
                         key={p?._id}
                         product={p}
+                        refetch={fetchProducts}
                     />
                 ))}
 

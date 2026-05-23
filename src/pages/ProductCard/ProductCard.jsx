@@ -1,21 +1,75 @@
 import { useState } from "react";
+import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
+import countries from "i18n-iso-countries";
+import en from "i18n-iso-countries/langs/en.json";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
-const ProductCard = ({ product }) => {
+countries.registerLocale(en);
+
+const ProductCard = ({ product, refetch }) => {
     const [showMore, setShowMore] = useState(false);
 
-    // 🌍 FLAG GENERATOR (FIXED)
+    const axiosSecure = useAxiosSecure();
+
+    // FLAG
     const getFlag = (countryName) => {
         if (!countryName) return "🌍";
 
-        const code = countries.getAlpha2Code(countryName.trim(), "en");
+        const code = countries.getAlpha2Code(
+            countryName.trim(),
+            "en"
+        );
 
         if (!code) return "🌍";
 
         return code
             .toUpperCase()
             .replace(/./g, char =>
-                String.fromCodePoint(127397 + char.charCodeAt())
+                String.fromCodePoint(
+                    127397 + char.charCodeAt()
+                )
             );
+    };
+
+    // DELETE PRODUCT
+    const handleDelete = async () => {
+        try {
+            const confirm = await Swal.fire({
+                title: "Are you sure?",
+                text: "This product will be deleted!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes Delete",
+            });
+
+            if (confirm.isConfirmed) {
+
+                const res = await axiosSecure.delete(
+                    `/products/${product?._id}`
+                );
+
+                if (res.data.deletedCount > 0) {
+
+                    Swal.fire(
+                        "Deleted!",
+                        "Product deleted successfully",
+                        "success"
+                    );
+
+                    refetch && refetch();
+                }
+            }
+
+        } catch (error) {
+            console.log(error);
+
+            Swal.fire(
+                "Error",
+                "Delete failed",
+                "error"
+            );
+        }
     };
 
     return (
@@ -25,7 +79,10 @@ const ProductCard = ({ product }) => {
             <figure className="relative bg-base-200">
 
                 <img
-                    src={product?.image || "https://via.placeholder.com/300"}
+                    src={
+                        product?.image ||
+                        "https://via.placeholder.com/300"
+                    }
                     alt={product?.name || "product"}
                     className="w-full h-60 object-contain p-4"
                 />
@@ -47,15 +104,18 @@ const ProductCard = ({ product }) => {
                     {product?.name}
                 </h2>
 
-                {/* COUNTRY + FLAG */}
+                {/* COUNTRY */}
                 <p className="flex items-center gap-2 text-red-600 font-semibold">
+
                     <span className="text-2xl">
-                        {product?.flag || getFlag(product?.country)}
+                        {product?.flag ||
+                            getFlag(product?.country)}
                     </span>
 
                     <span>
                         {product?.country || "Unknown"}
                     </span>
+
                 </p>
 
                 {/* DETAILS */}
@@ -63,14 +123,17 @@ const ProductCard = ({ product }) => {
 
                     {showMore
                         ? product?.details
-                        : product?.details?.slice(0, 80) + "..."
-                    }
+                        : product?.details?.slice(0, 80) + "..."}
 
                     <button
-                        onClick={() => setShowMore(!showMore)}
+                        onClick={() =>
+                            setShowMore(!showMore)
+                        }
                         className="text-blue-500 ml-2 font-medium"
                     >
-                        {showMore ? "See Less" : "See More"}
+                        {showMore
+                            ? "See Less"
+                            : "See More"}
                     </button>
 
                 </p>
@@ -78,21 +141,37 @@ const ProductCard = ({ product }) => {
                 {/* PHONE */}
                 <div className="flex items-center gap-2 text-gray-600 font-medium">
 
-                    <span className="text-green-500 text-lg">📞</span>
+                    <span className="text-green-500 text-lg">
+                        📞
+                    </span>
 
                     <span>{product?.phone}</span>
 
                 </div>
 
-                {/* BUTTON */}
-                <div className="card-actions mt-3">
+                {/* BUTTONS */}
+                <div className="grid grid-cols-3 gap-2 mt-4">
 
-                    <a
-                        href={`tel:${product?.phone}`}
-                        className="btn w-full bg-green-500 text-white hover:bg-green-600 transition-all"
+                    <Link
+                        to={`/order/${product?._id}`}
+                        className="btn btn-success"
                     >
                         Order Now
-                    </a>
+                    </Link>
+
+                    <Link
+                        to={`/update-product/${product?._id}`}
+                        className="btn btn-primary"
+                    >
+                        Edit
+                    </Link>
+
+                    <button
+                        onClick={handleDelete}
+                        className="btn bg-red-500 text-white hover:bg-red-600"
+                    >
+                        Delete
+                    </button>
 
                 </div>
 
