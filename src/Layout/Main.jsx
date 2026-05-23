@@ -1,15 +1,34 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "../shared/NavBar/NavBar";
+import Navbar from '../shared/NavBar/NavBar';
+import Footer from "../shared/Footer/Footer";
+
+
 
 const Main = () => {
+
   return (
+
     <div>
-      <div className="bg-white shadow-md mt-10 mb-5">
+
+      {/* NAVBAR */}
+      <div className="bg-white shadow-md">
+
         <Navbar />
+
       </div>
-      <div className=" mx-auto px-4">
+
+
+      {/* PAGE */}
+      <div className="max-w-7xl mx-auto px-4 min-h-screen">
+
         <Outlet />
+
       </div>
+
+
+      {/* FOOTER */}
+      <Footer />
+
     </div>
   );
 };

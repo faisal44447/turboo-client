@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import homeLogo from "../../assets/homeLogo.PNG";
+import Banner from "../../components/Banner/Banner";
 
 const Home = () => {
     return (
-        <div className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+        <div>
+            <div className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
 
             {/* Center Text */}
             <h1 className="absolute text-3xl md:text-5xl font-bold z-10 text-center -top-2">
@@ -24,6 +26,10 @@ const Home = () => {
                 }}
             />
 
+        </div>
+        <div className="-mt-[150px]">
+            <Banner />
+        </div>
         </div>
     );
 };
